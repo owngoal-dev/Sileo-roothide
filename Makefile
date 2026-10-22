@@ -249,9 +249,10 @@ stage: patch-deps all
 	@rm -rf $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/_CodeSignature
 	@rm -rf $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/Frameworks
 	@cp giveMeRoot/bin/giveMeRoot $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/
-	@$(TARGET_CODESIGN) -SSileo/Entitlements.entitlements $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/
+	@rm -rf "$(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/Down_Down.bundle/DownView (macOS).bundle"
 	@$(TARGET_CODESIGN) -SgiveMeRoot/Entitlements.plist $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/giveMeRoot
 	@chmod 4755 $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/giveMeRoot
+	@codesign --force --sign - --timestamp=none --entitlements Sileo/Entitlements.entitlements $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/
 else
 stage: patch-deps all
 	@set -o pipefail; \
@@ -303,7 +304,6 @@ package: stage
 	@rm -f $(SILEO_STAGE_DIR)/DEBIAN/postinst.in
 	@rm -rf $(SILEO_STAGE_DIR)/DEBIAN/postinst-mac.in
 	@rm -rf $(SILEO_STAGE_DIR)/DEBIAN/prerm-mac
-	@rm -rf "$(SILEO_STAGE_DIR)/Applications/$(SILEO_APP)/Down_Down.bundle/DownView (macOS).bundle"
 	@rm -rf ./packages
 	@mkdir -p ./packages
 	@dpkg-deb -Z$(DPKG_TYPE) --root-owner-group -b $(SILEO_STAGE_DIR) ./packages/$(SILEO_ID)_$(SILEO_VERSION)_$(DEB_ARCH).deb
