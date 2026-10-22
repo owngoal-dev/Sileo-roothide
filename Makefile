@@ -11,7 +11,7 @@ ALL_BOOTSTRAPS     ?= 1
 
 DEBUG              ?= 0
 
-TARGET_CODESIGN = $(shell which ldid)
+TARGET_CODESIGN = $(shell which ldid) -Hsha256 -Cadhoc
 
 SILEOTMP = $(TMPDIR)/sileo
 SILEO_STAGE_DIR = $(SILEOTMP)/stage
