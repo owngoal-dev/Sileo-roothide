@@ -21,6 +21,8 @@ public enum DownloadManagerQueue: Int {
 final class DownloadManager {
     public static let lockStateChangeNotification = Notification.Name("SileoDownloadManagerLockStateChanged")
     
+    private static let patcherIdentifiers = ["wiki.qaq.umbra.patcher", "com.roothide.patcher"]
+
     private static let aptQueueContext = 50
     private static let aptQueueKey = DispatchSpecificKey<Int>()
     public static let aptQueue: DispatchQueue = {
@@ -801,8 +803,8 @@ final class DownloadManager {
             NSLog("SileoLog: destURL=\(destURL.path)")
             try! FileManager.default.moveItem(at: fileURL, to: destURL)
         
-            if IsAppAvailable("com.roothide.patcher") {
-                if ShareFileToApp("com.roothide.patcher", destFileName) {
+            for identifier in Self.patcherIdentifiers where IsAppAvailable(identifier) {
+                if ShareFileToApp(identifier, destFileName) {
                     return
                 }
             }
@@ -937,11 +939,13 @@ final class DownloadManager {
                     
                     let title = String(localizationKey: "Not Updated")
                     
-                    let msg = IncompatibleRepo ? String(localizationKey: "please contact @roothideDev to update it") : String(localizationKey: "\(package.package)(\(package.version))\n\nYou can contact the developer of this package to update it for roothide, or you can try to convert it via roothide Patcher.")
+                    let msg = IncompatibleRepo ? String(localizationKey: "please contact @roothideDev to update it") : String(localizationKey: "\(package.package)(\(package.version))\n\nYou can contact the developer of this package to update it for roothide, or you can try to convert it via Umbra Patcher.")
                     
                     let alert = UIAlertController(title: title, message: msg, preferredStyle: .alert)
                     
-                    let installedPatcher = PackageListManager.shared.installedPackage(identifier: "com.roothide.patcher") != nil
+                    let installedPatcher = Self.patcherIdentifiers.contains {
+                        PackageListManager.shared.installedPackage(identifier: $0) != nil
+                    }
                     
                     let patchAction = UIAlertAction(title: String(localizationKey: installedPatcher ? "Convert" : "Get Patcher"), style: .destructive) { _ in
                         alert.dismiss(animated: true, completion: {
@@ -949,7 +953,7 @@ final class DownloadManager {
                             if installedPatcher {
                                 self.downloadDeb(package:package, msg: String(localizationKey: "Downloading_Package_Status"), handler: self.patchPackage)
                             }
-                            else if let packageview = URLManager.viewController(url: URL(string: "sileo://package/com.roothide.patcher"), isExternalOpen: true, presentModally: &presentModally) {
+                            else if let packageview = URLManager.viewController(url: URL(string: "sileo://package/wiki.qaq.umbra.patcher"), isExternalOpen: true, presentModally: &presentModally) {
                                 
                                 SileoAppDelegate.presentController(packageview)
                             }
