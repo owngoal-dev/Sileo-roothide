@@ -11,7 +11,7 @@ ALL_BOOTSTRAPS     ?= 1
 
 DEBUG              ?= 0
 
-TARGET_CODESIGN = $(shell which ldid) -Hsha256 -Cadhoc
+TARGET_CODESIGN = $(shell which ldid)
 
 SILEOTMP = $(TMPDIR)/sileo
 SILEO_STAGE_DIR = $(SILEOTMP)/stage
@@ -251,8 +251,8 @@ stage: patch-deps all
 	@cp giveMeRoot/bin/giveMeRoot $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/
 	@rm -rf "$(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/Down_Down.bundle/DownView (macOS).bundle"
 	@$(TARGET_CODESIGN) -SgiveMeRoot/Entitlements.plist $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/giveMeRoot
+	@$(TARGET_CODESIGN) -w -SSileo/Entitlements.entitlements $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/
 	@chmod 4755 $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/giveMeRoot
-	@codesign --force --sign - --timestamp=none --entitlements Sileo/Entitlements.entitlements $(SILEO_STAGE_DIR)/$(PREFIX)/Applications/$(SILEO_APP)/
 else
 stage: patch-deps all
 	@set -o pipefail; \
